@@ -18,7 +18,15 @@ namespace RyuWebApiRest.Controllers
         // GET api/products
         public IEnumerable<Product> Get()
         {
-            return _prodSrv.GetProducts();
+            try
+            {
+                return _prodSrv.GetProducts();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"Products Exception {ex.Message}");
+                return null;
+            }
         }
 
         // GET api/products/5
