@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using RyuWebApiRest.Services.Production;
 using System.Threading.Tasks;
@@ -18,52 +15,99 @@ namespace RyuWebApiRest.Controllers
         // GET api/products
         public IEnumerable<Product> Get()
         {
+            Serilog.Log.Information("Products GET products - STARTED");
+
             try
             {
                 return _prodSrv.GetProducts();
             }
             catch (Exception ex)
             {
+                Serilog.Log.Error(ex, "Products GET products - EXCEPTION");
                 System.Diagnostics.Trace.WriteLine($"Products Exception {ex.Message}");
-                return null;
+                throw;
             }
         }
 
         // GET api/products/5
         public async Task<IHttpActionResult> Get(int id)
         {
-            return Ok(await _prodSrv.GetProduct(id));
+            Serilog.Log.Information("Products GET product - STARTED");
+
+            try
+            {
+                return Ok(await _prodSrv.GetProduct(id));
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, $"Products GET product - EXCEPTION, {id}");
+                System.Diagnostics.Trace.WriteLine($"Products Exception {ex.Message}");
+                throw;
+            }
         }
 
         // POST api/products
         public IHttpActionResult Post([FromBody]Product product)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            Serilog.Log.Information("Products POST products - STARTED");
 
-            var productId = _prodSrv.AddProduct(product);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            return CreatedAtRoute("DefaultApi", new { id = productId }, product);
+                var productId = _prodSrv.AddProduct(product);
+
+                return CreatedAtRoute("DefaultApi", new { id = productId }, product);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Products POST product - EXCEPTION, {@product}", product);
+                System.Diagnostics.Trace.WriteLine($"Products Exception {ex.Message}");
+                throw;
+            }
         }
 
         // PUT api/products/5
         public IHttpActionResult Put(int id, [FromBody]Product product)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            Serilog.Log.Information("Products PUT products - STARTED");
 
-            if (id != product.ProductId)
-                return BadRequest();
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            _prodSrv.UpdateProduct(product);
+                if (id != product.ProductId)
+                    return BadRequest();
 
-            return StatusCode(HttpStatusCode.NoContent);
+                _prodSrv.UpdateProduct(product);
+
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Products PUT product - EXCEPTION, {id} {@product}", id, product);
+                System.Diagnostics.Trace.WriteLine($"Products Exception {ex.Message}");
+                throw;
+            }
         }
 
         // DELETE api/products/5
         public void Delete(int id)
         {
-            _prodSrv.DeleteProduct(id);
+            Serilog.Log.Information("Products DELETE products - STARTED");
+
+            try
+            {
+                _prodSrv.DeleteProduct(id);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Products DELETE product - EXCEPTION, {id}", id);
+                System.Diagnostics.Trace.WriteLine($"Products Exception {ex.Message}");
+                throw;
+            }
         }
     }
 }

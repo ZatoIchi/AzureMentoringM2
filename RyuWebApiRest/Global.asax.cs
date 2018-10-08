@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Serilog;
 
 namespace RyuWebApiRest
 {
@@ -20,10 +21,18 @@ namespace RyuWebApiRest
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             GlobalConfiguration.Configuration.Formatters
-                .JsonFormatter.SerializerSettings.ReferenceLoopHandling = 
+                .JsonFormatter.SerializerSettings.ReferenceLoopHandling =
                     Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             GlobalConfiguration.Configuration.Formatters
                 .Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
+
+            const string ApplicationInsightsInstrumentationKey = "6ebcf926-94b6-4f54-9b0e-885083c0453e";
+
+            Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Verbose() // Minimum severity to log
+                    .WriteTo
+                    .ApplicationInsightsEvents(ApplicationInsightsInstrumentationKey)
+                    .CreateLogger();
         }
     }
 }
